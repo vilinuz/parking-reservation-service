@@ -1,0 +1,36 @@
+spring:
+  docker:
+    compose:
+      enabled: true
+      file: docker-compose.yml
+      profiles:
+        active: dev
+
+  r2dbc:
+    url: r2dbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:postgres}
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:admin}
+
+  sql:
+    init:
+      mode: always
+
+  redis:
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include:
+          - health
+          - info
+          - redisCache   # <-- The custom actuator endpoint
+  endpoint:
+    health:
+      show-details: always
+
+
+

@@ -1,0 +1,49 @@
+services:
+
+  postgres:
+    container_name: postgres
+    image: postgres:alpine3.22
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=todolist
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/data/db
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/data/pgadmin
+
+  redis:
+    image: redis:8.2.1-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
+    command: [
+      "redis-server",
+      "--appendonly", "yes"
+    ]
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_MAXMEMORY=256mb
+      - REDIS_MAXMEMORY_POLICY=allkeys-lru
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  redis_data:
+    driver: local
+

@@ -1,0 +1,118 @@
+openapi: 3.0.1
+info:
+  title: Parking Reservation API
+  version: 1.0.0
+  description: API for Parking Reservation System
+
+servers:
+  - url: /api/v1/reservation
+
+paths:
+  /:
+    post:
+      summary: Reserve a parking lot
+      operationId: createReservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequestDto'
+      responses:
+        '201':
+          description: Reservation successful
+      tags:
+        - Parking Reservation
+
+    get:
+      operationId: findReservations
+      summary: Search parking reservations
+      description: Search reservations by lotId, reservationId, status, in the date range (startDate, endDate).
+      parameters:
+        - name: lotId
+          in: query
+          description: Filter by lot ID
+          required: false
+          schema:
+            type: string
+        - name: reservationId
+          in: query
+          description: Filter by reservation ID
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by reservation status (e.g. active, cancelled)
+          required: false
+          schema:
+            type: string
+            enum: [NEW, ACTIVE, COMPLETED, CANCELLED]
+        - name: startDate
+          in: query
+          description: Filter reservations with a start date on or after this date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter reservations with an end date on or before this date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Reservation search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponseDto'
+        '400':
+          description: Invalid request parameters
+
+components:
+  schemas:
+    ReservationDto:
+      type: object
+      properties:
+        reservationGroup:
+          type: string
+          format: uuid
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        vehiclePlate:
+          type: string
+        lotId:
+          type: string
+
+    ReservationRequestDto:
+      allOf:
+        - $ref: '#/components/schemas/ReservationDto'
+      required:
+        - startTime
+        - endTime
+        - vehiclePlate
+        - lotId
+
+    ReservationResponseDto:
+      allOf:
+        - $ref: '#/components/schemas/ReservationDto'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              $ref: '#/components/schemas/ReservationStatusDto'
+
+    ReservationStatusDto:
+      type: string
+      enum: [ NEW, ACTIVE, COMPLETED ]
